@@ -1,0 +1,17 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+
+<div style="width: 80%; margin-left: auto; margin-right: auto; text-align: center; padding-bottom: 10px; font-size: 2em;">
+	{% if gameTitle %}
+		Recommendations if you liked '{{ gameTitle }}'
+	{% else %}
+		Cannot understand input. Please try again.
+	{% endif %}
+</div>
+<div style="width: 80%; margin-left: auto; margin-right: auto; text-align: center; padding-bottom: 20px; font-size: 1.2em; font-weight: 100;">
+	Showing recommended games for {{ usablePlatforms }}
+</div>
+
+
+{% endblock body %}
