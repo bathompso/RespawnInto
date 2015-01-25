@@ -25,7 +25,8 @@ def func_name():
 	PS4  = request.args.get('PS4', False)
 	Wii  = request.args.get('Wii', False)
 	WiiU = request.args.get('WiiU', False)
-	platformBool, platformName = [X360, XOne, PS3, PS4, Wii, WiiU], ['Xbox 360', 'Xbox One', 'PS3', 'PS4', 'Wii', 'Wii U']
+	iPhone = request.args.get('iPhone', False)
+	platformBool, platformName = [X360, XOne, PS3, PS4, Wii, WiiU, iPhone], ['Xbox 360', 'Xbox One', 'PS3', 'PS4', 'Wii', 'Wii U', 'iPhone']
 	usablePlatforms = [platformName[x] for x in range(len(platformName)) if platformBool[x]]
 	if len(usablePlatforms) < 2:
 		platformString = ''.join(usablePlatforms)

@@ -126,6 +126,7 @@ def comment_recommendations(gameIdx, usablePlatforms):
 
 			commenter_return.append({'name': gameName, 'platforms': gamePlatforms, 'ign': gameRatingIGN, 'comm': gameRatingComm, 'art': gameArt, 'similarity': gameRatingSimilarity, 'link': gameReview})
 			ctr += 1
+			if ctr > len(commenter_recommends): break
 		return commenter_return
 
 # Format review similarity returns into a usable format for flask

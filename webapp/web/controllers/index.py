@@ -8,6 +8,8 @@ index_page = flask.Blueprint("index_page", __name__)
 @index_page.route('/')
 def func_name():
 	templateDict = {}
+	gameNames = [x['name'] for x in current_app.ignData]
+	templateDict['gameNames'] = gameNames
 
 	return render_template("index.html", **templateDict)
 
