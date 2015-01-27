@@ -4,8 +4,13 @@
 <style>
 .ratingcell {
 	padding: 3px; 
-	margin: 3px; 
 	border-radius: 5px; 
+	margin-top: -22px; 
+	margin-right: -5px; 
+	width: 32px;
+	height: 30px; 
+	float: right; 
+	text-align: center;
 }
 .greatrating { background: #179f01; }
 .goodrating { background: #aea400; }
@@ -24,10 +29,8 @@ a:hover {
 
 {% block body %}
 
-<p>{{ test }}</p>
-
 <div style="width: 80%; margin-left: auto; margin-right: auto; text-align: center; padding-bottom: 10px; font-size: 2em;">
-	{% if game %}
+	{% if game.name %}
 		Recommendations if you liked '{{ game.name }}'
 	{% else %}
 		Cannot understand input. Please try again.
@@ -38,122 +41,29 @@ a:hover {
 </div>
 
 {% if commenter_recommendations %}
-	<div style="width: 95%; margin-left: auto; margin-right: auto; padding-top: 30px;">
-		<p style="font-size: 1.4em; font-weight: 100;">Recommendations Based on IGN User Activity</p>
-		{% for g in commenter_recommendations %}
-			<div class="col-sm-2"><a href="{{ g.link }}">
-				<div style="background-image: url('{{ g.art }}'); width: 127px; height: 160px; background-position: center; background-size: cover; margin-left: auto; margin-right: auto;"></div>
-				<div style="text-align: center; font-weight: 100;">{{ g.name }}</div>
-			</a></div>
-		{% endfor %}
-		<div style="clear: both">&nbsp;</div>
-		{% for g in commenter_recommendations %}
-			<div class="col-sm-2" style="margin-top: -15px">
-				<table border="0" style="width: 100%;">
-					<tr><td style="width: 75%;">Similarity:</td><td style="width: 22%; text-align: center;">{{ '%d' % (g.similarity*1000) }}</td></tr>
-					<tr><td style="width: 75%;">IGN Score:</td><td style="width: 22%; text-align: center;">
-						{% if g.ign >= 9 %}<div class="ratingcell greatrating">
-						{% elif g.ign >= 8 %}<div class="ratingcell goodrating">
-						{% elif g.ign >= 6 %}<div class="ratingcell fairrating">
-						{% else %}<div class="ratingcell poorrating">
-						{% endif %}
-						{{ '%.1f' % (g.ign) }}</div>
-					</td></tr>
-					<tr><td style="width: 75%;">User Score:</td><td style="width: 22%; text-align: center;">
-						{% if g.comm >= 9 %}<div class="ratingcell greatrating">
-						{% elif g.comm >= 8 %}<div class="ratingcell goodrating">
-						{% elif g.comm >= 6 %}<div class="ratingcell fairrating">
-						{% elif g.comm > 0 %}<div class="ratingcell poorrating">
-						{% else %}<div style="padding: 2px;">
-						{% endif %}
-						{% if g.comm > 0 %}{{ '%.1f' % (g.comm) }}
-						{% else %}---{% endif %}
-					</td></tr>
-				</table>
-				<!--<div>Available for {{ g.platforms }}</div>-->
-			</div>
-		{% endfor %}
+	<div class="row" style="width: 95%; margin-left: auto; margin-right: auto; padding-top: 30px;">
+		{% for g in commenter_recommendations[:6] %}{% include 'displaycell' %}{% endfor %}
 	</div>
-	<p style="clear: both;">&nbsp;</p>
-{% endif %}
+	<div class="row" style="width: 95%; margin-left: auto; margin-right: auto; padding-top: 30px;">
+		{% for g in commenter_recommendations[6:] %}{% include 'displaycell' %}{% endfor %}
+	</div>
+	
 
-{% if reviews_recommendations %}
-	<div style="width: 95%; margin-left: auto; margin-right: auto; margin-top: 30px;">
-		<p style="font-size: 1.4em; font-weight: 100;">Recommendations Based on IGN Reviews</p>
-		{% for g in reviews_recommendations %}
-			<div class="col-sm-2"><a href="{{ g.link }}">
-				<div style="background-image: url('{{ g.art }}'); width: 127px; height: 160px; background-position: center; background-size: cover; margin-left: auto; margin-right: auto;"></div>
-				<div style="text-align: center; font-weight: 100;">{{ g.name }}</div>
-			</a></div>
-		{% endfor %}
-		<div style="clear: both">&nbsp;</div>
-		{% for g in reviews_recommendations %}
-			<div class="col-sm-2" style="margin-top: -15px">
-				<table border="0" style="width: 100%;" cellspacing="10">
-					<tr><td style="width: 75%;">Similarity Score:</td><td style="width: 22%; text-align: center;"><div class="ratingcell">{{ '%d' % (g.similarity*100) }}</div></td></tr>
-					<tr><td style="width: 75%;">IGN Score:</td><td style="width: 22%; text-align: center;">
-						{% if g.ign >= 9 %}<div class="ratingcell greatrating">
-						{% elif g.ign >= 8 %}<div class="ratingcell goodrating">
-						{% elif g.ign >= 6 %}<div class="ratingcell fairrating">
-						{% else %}<div class="ratingcell poorrating">
-						{% endif %}
-						{{ '%.1f' % (g.ign) }}</div>
-					</td></tr>
-					<tr><td style="width: 75%;">User Score:</td><td style="width: 22%; text-align: center;">
-						{% if g.comm >= 9 %}<div class="ratingcell greatrating">
-						{% elif g.comm >= 8 %}<div class="ratingcell goodrating">
-						{% elif g.comm >= 6 %}<div class="ratingcell fairrating">
-						{% elif g.comm > 0 %}<div class="ratingcell poorrating">
-						{% else %}<div style="padding: 2px;">
-						{% endif %}
-						{% if g.comm > 0 %}{{ '%.1f' % (g.comm) }}
-						{% else %}---{% endif %}
-					</td></tr>
-				</table>
-				<!--<div>Available for {{ g.platforms }}</div>-->
-			</div>
-		{% endfor %}
+{% elif reviews_recommendations %}
+	<div class="row" style="width: 95%; margin-left: auto; margin-right: auto; padding-top: 30px;">
+		{% for g in reviews_recommendations[:6] %}{% include 'displaycell' %}{% endfor %}
 	</div>
-	<p style="clear: both;">&nbsp;</p>
-{% endif %}
+	<div class="row" style="width: 95%; margin-left: auto; margin-right: auto; padding-top: 30px;">
+		{% for g in reviews_recommendations[6:] %}{% include 'displaycell' %}{% endfor %}
+	</div>
 
-{% if genre_recommendations %}
-	<div style="width: 95%; margin-left: auto; margin-right: auto; margin-top: 30px;">
-		<p style="font-size: 1.4em; font-weight: 100;">Best Reviewed {{ game.genre }} Games</p>
-		{% for g in genre_recommendations %}
-			<div class="col-sm-2"><a href="{{ g.link }}">
-				<div style="background-image: url('{{ g.art }}'); width: 127px; height: 160px; background-position: center; background-size: cover; margin-left: auto; margin-right: auto;"></div>
-				<div style="text-align: center; font-weight: 100;">{{ g.name }}</div>
-			</a></div>
-		{% endfor %}
-		<div style="clear: both">&nbsp;</div>
-		{% for g in genre_recommendations %}
-			<div class="col-sm-2" style="margin-top: -15px">
-				<table border="0" style="width: 100%;">
-					<tr><td style="width: 75%;">IGN Score:</td><td style="width: 22%; text-align: center;">
-						{% if g.ign >= 9 %}<div class="ratingcell greatrating">
-						{% elif g.ign >= 8 %}<div class="ratingcell goodrating">
-						{% elif g.ign >= 6 %}<div class="ratingcell fairrating">
-						{% else %}<div class="ratingcell poorrating">
-						{% endif %}
-						{{ '%.1f' % (g.ign) }}</div>
-					</td></tr>
-					<tr><td style="width: 75%;">User Score:</td><td style="width: 22%; text-align: center;">
-						{% if g.comm >= 9 %}<div class="ratingcell greatrating">
-						{% elif g.comm >= 8 %}<div class="ratingcell goodrating">
-						{% elif g.comm >= 6 %}<div class="ratingcell fairrating">
-						{% elif g.comm > 0 %}<div class="ratingcell poorrating">
-						{% else %}<div style="padding: 2px;">
-						{% endif %}
-						{% if g.comm > 0 %}{{ '%.1f' % (g.comm) }}
-						{% else %}---{% endif %}
-					</td></tr>
-				</table>
-				<!--<div>Available for {{ g.platforms }}</div>-->
-			</div>
-		{% endfor %}
+{% elif genre_recommendations %}
+	<div class="row" style="width: 95%; margin-left: auto; margin-right: auto; padding-top: 30px;">
+		{% for g in genre_recommendations[:6] %}{% include 'displaycell' %}{% endfor %}
 	</div>
-	<p style="clear: both;">&nbsp;</p>
+	<div class="row" style="width: 95%; margin-left: auto; margin-right: auto; padding-top: 30px;">
+		{% for g in genre_recommendations[6:] %}{% include 'displaycell' %}{% endfor %}
+	</div>
 {% endif %}
 
 

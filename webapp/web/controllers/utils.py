@@ -97,7 +97,7 @@ def comment_recommendations(gameIdx, usablePlatforms):
 		return None
 	else:
 		commenter_return, ctr = [], 0
-		while len(commenter_return) < 6:
+		while len(commenter_return) < 12:
 			# Check if we can find this game in the overall dataset (sometimes weird stuff happens)
 			idx = [x for x in range(len(current_app.ignData)) if current_app.ignData[x]['reviewLink'].split('/')[-1] == commenter_recommends[-ctr-1].split('/')[-1]]
 			if len(idx) == 0:
@@ -136,7 +136,7 @@ def review_recommendations(gameIdx, usablePlatforms, usedTitles):
 		return None
 	else:
 		review_return, ctr = [], 0
-		while len(review_return) < 6:
+		while len(review_return) < 12:
 			# Check if we can find this game in the overall dataset (sometimes weird stuff happens)
 			idx = [x for x in range(len(current_app.ignData)) if current_app.ignData[x]['reviewLink'].split('/')[-1] == review_recommends[-ctr-1].split('/')[-1]]
 			if len(idx) == 0:
@@ -178,7 +178,7 @@ def genre_recommendations(gameIdx, usablePlatforms, usedTitles):
 		return None
 	else:
 		genre_return, ctr = [], 0
-		while len(genre_return) < 6:
+		while len(genre_return) < 12:
 			idx = genre_recommends[-ctr-1]
 			# Check if this game is available for the selected platforms
 			inPlatform = [x for x in current_app.ignData[idx]['platforms'] if x in usablePlatforms]
