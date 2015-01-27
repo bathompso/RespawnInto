@@ -89,7 +89,10 @@ def func_name():
 	for i in bestIndex[:12]:
 		current_app.db.execute('SELECT * FROM games WHERE games.index = %s' % i)
 		gameData = current_app.db.fetchall()
+		current_app.db.execute('SELECT platforms.name FROM (games JOIN games_to_platforms AS g2p ON (games.index = g2p.games_index)) JOIN platforms ON (g2p.platforms_index = platforms.index) WHERE games.index = %s AND (platforms.name = "%s")' % (i, '" OR platforms.name = "'.join(usablePlatforms)))
+		platformData = current_app.db.fetchall()
 		gameData[0]['searchName'] = '+'.join(gameData[0]['name'].split())
+		gameData[0]['platform'] = platformData[0]['name']
 		recommendations.append(gameData[0])
 	templateDict['recommendations'] = recommendations
 

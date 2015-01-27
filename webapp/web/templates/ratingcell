@@ -1,6 +1,9 @@
 <div class="col-sm-2">
-	<!--<a href="{{ g.review_link }}">-->
-	<a href="http://www.amazon.com/s/ref=nb_sb_noss?url=search-alias%3Daps&field-keywords={{ g.searchName }}" target="_blank">
+	{% if g.platform == 'iPhone' %} <a href="https://www.google.com/#q={{ g.searchName }}+itunes.apple.com" target="_blank">
+	{% elif g.platform == 'Android' %} <a href="https://www.google.com/#q={{ g.searchName }}+google+play" target="_blank">
+	{% elif g.platform == 'WinPhone' %} <a href="https://www.google.com/#q={{ g.searchName }}+apps.microsoft.com" target="_blank">
+	{% else %} <a href="http://www.amazon.com/s/ref=nb_sb_noss?url=search-alias%3Daps&field-keywords={{ g.searchName }}" target="_blank">
+	{% endif %}
 		<div style="background-image: url('{{ g.box_art }}'); width: 127px; height: 160px; background-position: center; background-size: cover; margin-left: auto; margin-right: auto;"></div>
 		{% if g.ign_score >= 9 %}<div onclick="//amazon.com" class="ratingcell greatrating">
 		{% elif g.ign_score >= 8 %}<div onclick="//amazon.com" class="ratingcell goodrating">
