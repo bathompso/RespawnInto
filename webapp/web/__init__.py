@@ -9,11 +9,6 @@ def create_app(debug=True):
     app = flask.Flask(__name__)
     app.debug = debug
 
-    db = pymysql.connect(user='root', host='localhost', db='games')
-    db.autocommit(1)
-    session = db.cursor(pymysql.cursors.DictCursor)
-    app.db = session
-
     app.platforms = ['Xbox 360', 'Xbox One', 'PS3', 'PS4', 'Wii', 'Wii U', 'PC', 'iPhone', 'Android', 'WinPhone']
 
     # Define custom filters into the Jinja2 environment.
@@ -47,7 +42,7 @@ def create_app(debug=True):
     if app.debug:
         server_config_file = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                               'configuration_files',
-                                              'bathompso.com.cfg')
+                                              'aws.cfg')
     else:
         try:
             import uwsgi
@@ -68,6 +63,11 @@ def create_app(debug=True):
     #with app.app_context():
     #    from .model.database import db
     
+    db = pymysql.connect(user=app.config['DB_USER'], passwd=app.config['DB_PASS'], host=app.config['DB_HOST'], db=app.config['DB_NAME'])
+    db.autocommit(1)
+    session = db.cursor(pymysql.cursors.DictCursor)
+    app.db = session
+
     # Register blueprints
     from .controllers.index import index_page
     from .controllers.slides import slides_page
