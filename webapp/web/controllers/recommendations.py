@@ -3,7 +3,62 @@ from __future__ import print_function, division
 import os, sys, flask
 from flask import request, render_template, send_from_directory, current_app, session
 
-import utils
+import numpy as np
+from sklearn.feature_extraction.text import TfidfVectorizer
+
+def ign_comment_similarity(session, name, platforms):
+	# Get all games and commenters
+	session.execute('SELECT games.index, games.name, ign_comments.contributors FROM (((games JOIN ign_comments ON (games.index = ign_comments.games_index)) JOIN gamespot ON (games.index = gamespot.games_index)) JOIN games_to_platforms as g2p ON (games.index = g2p.games_index)) JOIN platforms ON (g2p.platforms_index = platforms.index) WHERE platforms.name = "%s" GROUP BY games.name' % ('" OR platforms.name = "'.join(platforms)))
+	commentData = session.fetchall()
+	# Find selected game in list
+	gloc = [x for x in range(len(commentData)) if commentData[x]['name'] == name]
+	if len(gloc) == 0: return [], []
+	else: gloc = gloc[0]
+	# Compute jaccard coefficients
+	jaccard = []
+	for i in range(len(commentData)):
+		union = len(np.unique(commentData[i]['contributors'].split(', ') + commentData[gloc]['contributors'].split(', ')))
+		total = len(np.unique(commentData[i]['contributors'].split(', '))) + len(np.unique(commentData[gloc]['contributors'].split(', ')))
+		if union >= 10: jaccard.append(2 * (1 - union / total))
+		else: jaccard.append(0)
+	sortScore = np.argsort(jaccard)
+	bestIndex = [commentData[sortScore[-x-1]]['index'] for x in range(len(jaccard)) if jaccard[sortScore[-x-1]] < 1 and jaccard[sortScore[-x-1]] > 0]
+	bestScore = [jaccard[sortScore[-x-1]] for x in range(len(jaccard)) if jaccard[sortScore[-x-1]] < 1 and jaccard[sortScore[-x-1]] > 0]
+	return bestIndex, bestScore
+
+def ign_review_similarity(session, name, platforms):
+	# Get all games and review text
+	session.execute('SELECT games.index, games.name, ign_reviews.review FROM ((games JOIN ign_reviews ON (games.index = ign_reviews.games_index)) JOIN games_to_platforms as g2p ON (games.index = g2p.games_index)) JOIN platforms ON (g2p.platforms_index = platforms.index) WHERE platforms.name = "%s" GROUP BY games.name' % ('" OR platforms.name = "'.join(platforms)))
+	reviewData = session.fetchall()
+	# Find selected game in list
+	gloc = [x for x in range(len(reviewData)) if reviewData[x]['name'] == name]
+	if len(gloc) == 0: return [], []
+	else: gloc = gloc[0]
+	# Compute TF-IDF similarities between reviews
+	tfidf = TfidfVectorizer(norm='l2').fit_transform([x['review'] for x in reviewData])
+	similarity = (tfidf * tfidf.T)
+	tfidfscore = [similarity[gloc,x] for x in range(similarity.shape[1])]
+	sortScore = np.argsort(tfidfscore)
+	bestIndex = [reviewData[sortScore[-x-1]]['index'] for x in range(len(sortScore)) if tfidfscore[sortScore[-x-1]] < 1 and tfidfscore[sortScore[-x-1]] > 0]
+	bestScore = [tfidfscore[sortScore[-x-1]] for x in range(len(sortScore)) if tfidfscore[sortScore[-x-1]] < 1 and tfidfscore[sortScore[-x-1]] > 0]
+	return bestIndex, bestScore
+
+def gs_review_similarity(session, name, platforms):
+	# Get all games and review text
+	session.execute('SELECT games.index, games.name, gamespot.review FROM ((games JOIN gamespot ON (games.index = gamespot.games_index)) JOIN games_to_platforms as g2p ON (games.index = g2p.games_index)) JOIN platforms ON (g2p.platforms_index = platforms.index) WHERE platforms.name = "%s" GROUP BY games.name' % ('" OR platforms.name = "'.join(platforms)))
+	reviewData = session.fetchall()
+	# Find selected game in list
+	gloc = [x for x in range(len(reviewData)) if reviewData[x]['name'] == name]
+	if len(gloc) == 0: return [], []
+	else: gloc = gloc[0]
+	# Compute TF-IDF similarities between reviews
+	tfidf = TfidfVectorizer(norm='l2').fit_transform([x['review'] for x in reviewData])
+	similarity = (tfidf * tfidf.T)
+	tfidfscore = [similarity[gloc,x] for x in range(similarity.shape[1])]
+	sortScore = np.argsort(tfidfscore)
+	bestIndex = [reviewData[sortScore[-x-1]]['index'] for x in range(len(sortScore)) if tfidfscore[sortScore[-x-1]] < 1 and tfidfscore[sortScore[-x-1]] > 0]
+	bestScore = [tfidfscore[sortScore[-x-1]] for x in range(len(sortScore)) if tfidfscore[sortScore[-x-1]] < 1 and tfidfscore[sortScore[-x-1]] > 0]
+	return bestIndex, bestScore
 
 
 recommendations_page = flask.Blueprint("recommendations_page", __name__)
@@ -11,54 +66,31 @@ recommendations_page = flask.Blueprint("recommendations_page", __name__)
 def func_name():
 	templateDict = {}
 
+	# Read in all parameters from request
 	gameTitle = request.args.get('gameTitle', None)
-	if gameTitle: 
-		gameIdx = [x for x in range(len(current_app.ignData)) if current_app.ignData[x]['name'] == gameTitle]
-		if len(gameIdx) == 0:
-			return render_template("recommendations.html", **templateDict)
-		gameIdx = gameIdx[0]
-		templateDict['game'] = current_app.ignData[gameIdx]
+	usablePlatforms = []
+	for p in ['Xbox 360', 'Xbox One', 'PS3', 'PS4', 'Wii', 'Wii U', 'PC', 'iPhone', 'Android']:
+		thisplat = request.args.get(p, False)
+		if thisplat: usablePlatforms.append(p)
 
-	X360 = request.args.get('X360', False)
-	XOne = request.args.get('XOne', False)
-	PS3  = request.args.get('PS3', False)
-	PS4  = request.args.get('PS4', False)
-	Wii  = request.args.get('Wii', False)
-	WiiU = request.args.get('WiiU', False)
-	iPhone = request.args.get('iPhone', False)
-	platformBool, platformName = [X360, XOne, PS3, PS4, Wii, WiiU, iPhone], ['Xbox 360', 'Xbox One', 'PS3', 'PS4', 'Wii', 'Wii U', 'iPhone']
-	usablePlatforms = [platformName[x] for x in range(len(platformName)) if platformBool[x]]
-	if len(usablePlatforms) < 2:
-		platformString = ''.join(usablePlatforms)
-	else:
-		platformString = ', '.join(usablePlatforms[:-1]) + ' and %s' % usablePlatforms[-1]
-	print(platformString)
+	# Prep some easy output to the recommendations page
+	templateDict['name'] = gameTitle
+	if len(usablePlatforms) < 2: platformString = ''.join(usablePlatforms)
+	else: platformString = ', '.join(usablePlatforms[:-1]) + ' and %s' % usablePlatforms[-1]
 	templateDict['usablePlatforms'] = platformString
 
-	# Get recommendations based on commenter activity
-	commenter_return = utils.comment_recommendations(gameIdx, usablePlatforms)
-	templateDict['commenter_recommendations'] = commenter_return
+	# Get recommended games from database
+	recommendations = []
+	bestIndex, bestScore = ign_comment_similarity(current_app.db, gameTitle, usablePlatforms)
+	if len(bestIndex) == 0:
+		bestIndex, bestScore = ign_review_similarity(current_app.db, gameTitle, usablePlatforms)
+		print("REVIEW")
 
-	# Get recommendations based on review similarity
-	if commenter_return:
-		taken_games = [x['name'] for x in commenter_return]
-	else:
-		taken_games = []
-	reviews_return = utils.review_recommendations(gameIdx, usablePlatforms, taken_games)
-	templateDict['reviews_recommendations'] = reviews_return
-
-	# Get best games in associated genre
-	if commenter_return and reviews_return:
-		taken_games = [x['name'] for x in commenter_return + reviews_return]
-	elif commenter_return:
-		taken_games = [x['name'] for x in commenter_return]
-	elif reviews_return:
-		taken_games = [x['name'] for x in reviews_return]
-	else:
-		taken_games = []
-	genre_return = utils.genre_recommendations(gameIdx, usablePlatforms, taken_games)
-	templateDict['genre_recommendations'] = genre_return
-
+	for i in bestIndex[:12]:
+		current_app.db.execute('SELECT * FROM games WHERE games.index = %s' % i)
+		gameData = current_app.db.fetchall()
+		recommendations.append(gameData[0])
+	templateDict['recommendations'] = recommendations
 
 
 	return render_template("recommendations.html", **templateDict)

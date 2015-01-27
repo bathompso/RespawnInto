@@ -3,15 +3,16 @@ from __future__ import print_function
 import os, sys, socket, flask, jinja_filters
 from inspect import getmembers, isfunction
 import json
+import pymysql
 
 def create_app(debug=True):
     app = flask.Flask(__name__)
     app.debug = debug
-    # Import the necessary static data at runtime
-    app.ignData = json.load(open(os.path.dirname(os.path.abspath(__file__))+'/data/ignStrip.json'))
-    app.ignComments = json.load(open(os.path.dirname(os.path.abspath(__file__))+'/data/ignComments.json'))
-    app.ignReviews = json.load(open(os.path.dirname(os.path.abspath(__file__))+'/data/ignReviews.json'))
 
+    db = pymysql.connect(user='root', host='localhost', db='games')
+    db.autocommit(1)
+    session = db.cursor(pymysql.cursors.DictCursor)
+    app.db = session
 
     print("{0}App '{1}' created.{2}".format('\033[92m', __name__, '\033[0m')) # to remove later
 
