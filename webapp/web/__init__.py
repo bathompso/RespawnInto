@@ -40,9 +40,10 @@ def create_app(debug=True):
     # server we are running on. This value is set in the uWSGI config file
     # for each server.
     if app.debug:
-        server_config_file = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                              'configuration_files',
-                                              'aws.cfg')
+        if (os.path.dirname(os.path.realpath(__file__))).find('ubuntu') >= 0: 
+            server_config_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'configuration_files', 'aws.cfg')
+        else:
+            server_config_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'configuration_files', 'bathompso.com.cfg')
     else:
         try:
             import uwsgi

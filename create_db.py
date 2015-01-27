@@ -4,9 +4,19 @@ import numpy as np
 import pandas as pd
 import pymysql
 import unidecode
+import os
+
+if (os.path.dirname(os.path.realpath(__file__))).find('ubuntu') >= 0: cfg_file = 'aws.cfg'
+else: cfg_file = 'bathompso.com.cfg'
+cfg = {}
+with open('webapp/web/configuration_files/' + cfg_file) as df:
+    for l in df.read().splitlines():
+        tmp = l.split(' = ')
+        try: cfg[tmp[0]] = tmp[1].replace("'", "")
+        except: pass
 
 # Open DB
-db = pymysql.connect(user='root', host='localhost', db='games')
+db = pymysql.connect(user=cfg['DB_USER'], passwd=cfg['DB_PASS'], host=cfg['DB_HOST'], db=cfg['DB_NAME'])
 db.autocommit(1)
 session = db.cursor(pymysql.cursors.DictCursor)
 
