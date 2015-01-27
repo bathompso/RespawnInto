@@ -12,6 +12,7 @@ def func_name():
 	gameNames = current_app.db.fetchall()
 	print(len(gameNames))
 	templateDict['gameNames'] = [x['name'] for x in gameNames]
+	templateDict['platforms'] = current_app.platforms
 
 	return render_template("index.html", **templateDict)
 

@@ -11,7 +11,18 @@ db.autocommit(1)
 session = db.cursor(pymysql.cursors.DictCursor)
 
 # Read in all data
-ignData = pd.read_json('data/ignComplete.json')
+ignData = pd.read_json('data/ignStrip.json')
+imageData = pd.read_json('data/ignImages.json')
+
+# Match boxart images to games
+ignImages = []
+for i in range(ignData.shape[0]):
+    imageTable = imageData[imageData['reviewLink'] == ignData.loc[i, 'reviewLink']]
+    if imageTable.shape[0] == 0:
+        ignImages.append('')
+        continue
+    ignImages.append(imageTable['boxart'].values[0])
+ignImages = np.array(ignImages)
 
 # Save all platforms to database
 allPlatforms = []
@@ -42,7 +53,8 @@ gameTable = pd.DataFrame({'name': ignData['name'].values,
                           'comm_score': ignData['commScore'].values,
                           'release_date': ignData['releaseDate'].values,
                           'review_date': ignData['reviewDate'].values,
-                          'review_link': ignData['reviewLink'].values })
+                          'review_link': ignData['reviewLink'].values,
+                          'box_art': ignImages })
 session.execute('''CREATE TABLE games ( 
                     `index` int AUTO_INCREMENT NOT NULL PRIMARY KEY, 
                     comm_score float,
@@ -50,17 +62,19 @@ session.execute('''CREATE TABLE games (
                     name varchar(100),
                     release_date varchar(100), 
                     review_date varchar(100), 
-                    review_link text );''')
+                    review_link text,
+                    box_art varchar(200) );''')
 for i in range(gameTable.shape[0]):
     column_name, values = [], []
     if not np.isnan(gameTable.loc[i, 'comm_score']):
         column_name.append('comm_score'); values.append(gameTable.loc[i, 'comm_score'])
     if not np.isnan(gameTable.loc[i, 'ign_score']):
         column_name.append('ign_score'); values.append(gameTable.loc[i, 'ign_score'])
-    column_name.append('name'); values.append('"'+gameTable.loc[i, 'name'].replace('"',"'")+'"')
+    column_name.append('name'); values.append('"'+unidecode.unidecode(gameTable.loc[i, 'name']).replace('"',"'")+'"')
     column_name.append('release_date'); values.append('"'+gameTable.loc[i, 'release_date']+'"')
     column_name.append('review_date'); values.append('"'+gameTable.loc[i, 'review_date']+'"')
     column_name.append('review_link'); values.append('"'+gameTable.loc[i, 'review_link']+'"')
+    column_name.append('box_art'); values.append('"'+gameTable.loc[i, 'box_art']+'"')
     qstr = 'INSERT INTO games (%s) VALUES (%s);' % (', '.join([str(x) for x in column_name]), ', '.join([str(x) for x in values]))
     session.execute(qstr)
 

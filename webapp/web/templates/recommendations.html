@@ -40,23 +40,17 @@ a:hover {
 	Showing recommended games for {{ usablePlatforms }}
 </div>
 
+{% if recommendations|length == 0 %}
+	<div class="row">
+		<div style="width: 95%; margin-left: auto; margin-right: auto; padding-top: 70px; text-align: center;">
+			<p style="font-size: 2.5em; font-weight: 100">Cannot Find any Recommended Games for Selected Platforms</p>
+		</div>
+	</div>
+{% endif %}
+
 <div class="row">
 	<div style="width: 95%; margin-left: auto; margin-right: auto; padding-top: 30px;">
-		{% for g in recommendations %}
-			<div class="col-sm-2"><a href="{{ g.review_link }}">
-				<div style="background-image: url('{{ g.box_art }}'); width: 127px; height: 160px; background-position: center; background-size: cover; margin-left: auto; margin-right: auto;"></div>
-				{% if g.ign_score >= 9 %}<div class="ratingcell greatrating">
-				{% elif g.ign_score >= 8 %}<div class="ratingcell goodrating">
-				{% elif g.ign_score >= 6 %}<div class="ratingcell fairrating">
-				{% else %}<div class="ratingcell poorrating">
-				{% endif %}
-				<div style='font-size: 0.5em; line-height: 60%;'>IGN</div>
-				{{ '%.1f' % (g.ign_score) }}</div>
-				<div style="text-align: center; clear: both; font-weight: 100; margin-top: -5px; margin-bottom: -5px;">{{ g.name }}</div>
-			</a></div>
-		{% endfor %}
-		<!--<div style="clear: both">&nbsp;</div>-->
-	</div>
+	{% for g in recommendations %}{% include 'ratingcell' %}{% endfor %}</div>
 </div>
 
 

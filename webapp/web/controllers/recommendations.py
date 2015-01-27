@@ -69,12 +69,13 @@ def func_name():
 	# Read in all parameters from request
 	gameTitle = request.args.get('gameTitle', None)
 	usablePlatforms = []
-	for p in ['Xbox 360', 'Xbox One', 'PS3', 'PS4', 'Wii', 'Wii U', 'PC', 'iPhone', 'Android']:
+	for p in current_app.platforms:
 		thisplat = request.args.get(p, False)
 		if thisplat: usablePlatforms.append(p)
 
 	# Prep some easy output to the recommendations page
 	templateDict['name'] = gameTitle
+	templateDict['linkName'] = '+'.join(gameTitle.split())
 	if len(usablePlatforms) < 2: platformString = ''.join(usablePlatforms)
 	else: platformString = ', '.join(usablePlatforms[:-1]) + ' and %s' % usablePlatforms[-1]
 	templateDict['usablePlatforms'] = platformString
@@ -84,11 +85,11 @@ def func_name():
 	bestIndex, bestScore = ign_comment_similarity(current_app.db, gameTitle, usablePlatforms)
 	if len(bestIndex) == 0:
 		bestIndex, bestScore = ign_review_similarity(current_app.db, gameTitle, usablePlatforms)
-		print("REVIEW")
 
 	for i in bestIndex[:12]:
 		current_app.db.execute('SELECT * FROM games WHERE games.index = %s' % i)
 		gameData = current_app.db.fetchall()
+		gameData[0]['searchName'] = '+'.join(gameData[0]['name'].split())
 		recommendations.append(gameData[0])
 	templateDict['recommendations'] = recommendations
 

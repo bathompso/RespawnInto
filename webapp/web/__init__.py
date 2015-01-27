@@ -14,7 +14,7 @@ def create_app(debug=True):
     session = db.cursor(pymysql.cursors.DictCursor)
     app.db = session
 
-    print("{0}App '{1}' created.{2}".format('\033[92m', __name__, '\033[0m')) # to remove later
+    app.platforms = ['Xbox 360', 'Xbox One', 'PS3', 'PS4', 'Wii', 'Wii U', 'PC', 'iPhone', 'Android', 'WinPhone']
 
     # Define custom filters into the Jinja2 environment.
     custom_filters = {name: function

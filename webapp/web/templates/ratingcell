@@ -1,0 +1,14 @@
+<div class="col-sm-2">
+	<!--<a href="{{ g.review_link }}">-->
+	<a href="http://www.amazon.com/s/ref=nb_sb_noss?url=search-alias%3Daps&field-keywords={{ g.searchName }}" target="_blank">
+		<div style="background-image: url('{{ g.box_art }}'); width: 127px; height: 160px; background-position: center; background-size: cover; margin-left: auto; margin-right: auto;"></div>
+		{% if g.ign_score >= 9 %}<div onclick="//amazon.com" class="ratingcell greatrating">
+		{% elif g.ign_score >= 8 %}<div onclick="//amazon.com" class="ratingcell goodrating">
+		{% elif g.ign_score >= 6 %}<div onclick="//amazon.com" class="ratingcell fairrating">
+		{% else %}<div onclick="//amazon.com" class="ratingcell poorrating">
+		{% endif %}
+		<div style='font-size: 0.5em; line-height: 60%;'>IGN</div>
+		{{ '%.1f' % (g.ign_score) }}</div>
+		<div style="text-align: center; clear: both; font-weight: 100; margin-top: -5px; margin-bottom: -5px; height: 75px;">{{ g.name }}</div>
+	</a>
+</div>

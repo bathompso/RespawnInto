@@ -46,12 +46,9 @@
 		<div class="form-group">
 			<label class="col-sm-2 control-label">Platforms</label>
 			<div class="col-sm-10 checkbox">
-				<label style="padding-right: 20px;"><input type="checkbox" name="Xbox 360" value="True">Xbox 360</label>
-				<label style="padding-right: 20px;"><input type="checkbox" name="Xbox One" value="True">Xbox One</label>
-				<label style="padding-right: 20px;"><input type="checkbox" name="PS3" value="True">PS3</label>
-				<label style="padding-right: 20px;"><input type="checkbox" name="PS4" value="True">PS4</label>
-				<label style="padding-right: 20px;"><input type="checkbox" name="Wii" value="True">Wii</label>
-				<label style="padding-right: 20px;"><input type="checkbox" name="Wii U" value="True">Wii U</label>
+				{% for p in platforms %}
+					<div class="col-sm-3"><label style="padding-right: 20px;"><input type="checkbox" name="{{ p }}" value="True">{{ p }}</label></div>
+				{% endfor %}
 			</div>
 		</div>
 		<div class="form-group">
