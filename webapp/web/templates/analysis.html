@@ -7,15 +7,36 @@
 <script rel='stylesheet' type='text/css'>
 .highcharts-legend { display: none };
 </script>
+<style>
+.custom-highchart-double {
+      height: 400px;
+      width: 47%;
+      float: left;
+      margin-right: 2%;
+}
+.custom-highchart-single {
+      height: 400px;
+      width: 47%;
+      margin: 0 auto
+}
+.highcharts-button { display: none; }
+</style>
 {% endblock head %}
 
 {% block body %}
 
-{# <script>{% include 'chart1.js' %}</script> #}
+<script>{% include 'chartRatingHist.js' %}</script>
+<script>{% include 'chartRatingScatter.js' %}</script>
+<script>{% include 'chartReviewHist.js' %}</script>
 
 <div style="width: 90%; margin: auto;">
 	<h2 style="text-align: center;">Interesting Data Analysis</h2>
-	<div id="chart1" style="min-width: 310px; height: 400px; max-width: 600px; margin: 0 auto"></div>
+	<div>
+	  <div id="chartRatingHist" class="custom-highchart-double"></div>
+	  <div id="chart1" class="custom-highchart-double"></div>
+	</div>
+	<div style="clear:both"></div>
+	<div id="chartReviewHist" class="custom-highchart-single"></div>
 </div>
 
 
