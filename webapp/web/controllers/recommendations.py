@@ -7,18 +7,18 @@ import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 def ign_comment_similarity(session, name, platforms):
+	# Get selected game
+	session.execute('SELECT games.index, games.name, ign_comments.contributors FROM games JOIN ign_comments ON (games.index = ign_comments.games_index) WHERE games.name = "%s"' % name)
+	gameData = session.fetchall()
+	if len(gameData) == 0: return [], []
 	# Get all games and commenters
-	session.execute('SELECT games.index, games.name, ign_comments.contributors FROM (((games JOIN ign_comments ON (games.index = ign_comments.games_index)) JOIN gamespot ON (games.index = gamespot.games_index)) JOIN games_to_platforms as g2p ON (games.index = g2p.games_index)) JOIN platforms ON (g2p.platforms_index = platforms.index) WHERE platforms.name = "%s" GROUP BY games.name' % ('" OR platforms.name = "'.join(platforms)))
+	session.execute('SELECT games.index, games.name, ign_comments.contributors FROM ((games JOIN ign_comments ON (games.index = ign_comments.games_index)) JOIN games_to_platforms as g2p ON (games.index = g2p.games_index)) JOIN platforms ON (g2p.platforms_index = platforms.index) WHERE platforms.name = "%s" GROUP BY games.name' % ('" OR platforms.name = "'.join(platforms)))
 	commentData = session.fetchall()
-	# Find selected game in list
-	gloc = [x for x in range(len(commentData)) if commentData[x]['name'] == name]
-	if len(gloc) == 0: return [], []
-	else: gloc = gloc[0]
 	# Compute jaccard coefficients
 	jaccard = []
 	for i in range(len(commentData)):
-		union = len(np.unique(commentData[i]['contributors'].split(', ') + commentData[gloc]['contributors'].split(', ')))
-		total = len(np.unique(commentData[i]['contributors'].split(', '))) + len(np.unique(commentData[gloc]['contributors'].split(', ')))
+		union = len(np.unique(commentData[i]['contributors'].split(', ') + gameData[0]['contributors'].split(', ')))
+		total = len(np.unique(commentData[i]['contributors'].split(', '))) + len(np.unique(gameData[0]['contributors'].split(', ')))
 		if union >= 10: jaccard.append(2 * (1 - union / total))
 		else: jaccard.append(0)
 	sortScore = np.argsort(jaccard)
@@ -27,6 +27,10 @@ def ign_comment_similarity(session, name, platforms):
 	return bestIndex, bestScore
 
 def ign_review_similarity(session, name, platforms):
+	# Get selected game
+	session.execute('SELECT games.index, games.name, ign_reviews.review FROM games JOIN ign_reviews ON (games.index = ign_reviews.games_index) WHERE games.name = "%s"' % name)
+	gameData = session.fetchall()
+	if len(gameData) == 0: return [], []
 	# Get all games and review text
 	session.execute('SELECT games.index, games.name, ign_reviews.review FROM ((games JOIN ign_reviews ON (games.index = ign_reviews.games_index)) JOIN games_to_platforms as g2p ON (games.index = g2p.games_index)) JOIN platforms ON (g2p.platforms_index = platforms.index) WHERE platforms.name = "%s" GROUP BY games.name' % ('" OR platforms.name = "'.join(platforms)))
 	reviewData = session.fetchall()
@@ -35,29 +39,14 @@ def ign_review_similarity(session, name, platforms):
 	if len(gloc) == 0: return [], []
 	else: gloc = gloc[0]
 	# Compute TF-IDF similarities between reviews
-	tfidf = TfidfVectorizer(norm='l2').fit_transform([x['review'] for x in reviewData])
+	reviewList = [x['review'] for x in reviewData]
+	reviewList.append(gameData[0]['review'])
+	tfidf = TfidfVectorizer().fit_transform(reviewList)
 	similarity = (tfidf * tfidf.T)
-	tfidfscore = [similarity[gloc,x] for x in range(similarity.shape[1])]
+	tfidfscore = [similarity[-1, x] for x in range(similarity.shape[1]-1)]
 	sortScore = np.argsort(tfidfscore)
-	bestIndex = [reviewData[sortScore[-x-1]]['index'] for x in range(len(sortScore)) if tfidfscore[sortScore[-x-1]] < 1 and tfidfscore[sortScore[-x-1]] > 0]
-	bestScore = [tfidfscore[sortScore[-x-1]] for x in range(len(sortScore)) if tfidfscore[sortScore[-x-1]] < 1 and tfidfscore[sortScore[-x-1]] > 0]
-	return bestIndex, bestScore
-
-def gs_review_similarity(session, name, platforms):
-	# Get all games and review text
-	session.execute('SELECT games.index, games.name, gamespot.review FROM ((games JOIN gamespot ON (games.index = gamespot.games_index)) JOIN games_to_platforms as g2p ON (games.index = g2p.games_index)) JOIN platforms ON (g2p.platforms_index = platforms.index) WHERE platforms.name = "%s" GROUP BY games.name' % ('" OR platforms.name = "'.join(platforms)))
-	reviewData = session.fetchall()
-	# Find selected game in list
-	gloc = [x for x in range(len(reviewData)) if reviewData[x]['name'] == name]
-	if len(gloc) == 0: return [], []
-	else: gloc = gloc[0]
-	# Compute TF-IDF similarities between reviews
-	tfidf = TfidfVectorizer(norm='l2').fit_transform([x['review'] for x in reviewData])
-	similarity = (tfidf * tfidf.T)
-	tfidfscore = [similarity[gloc,x] for x in range(similarity.shape[1])]
-	sortScore = np.argsort(tfidfscore)
-	bestIndex = [reviewData[sortScore[-x-1]]['index'] for x in range(len(sortScore)) if tfidfscore[sortScore[-x-1]] < 1 and tfidfscore[sortScore[-x-1]] > 0]
-	bestScore = [tfidfscore[sortScore[-x-1]] for x in range(len(sortScore)) if tfidfscore[sortScore[-x-1]] < 1 and tfidfscore[sortScore[-x-1]] > 0]
+	bestIndex = [reviewData[sortScore[-x-1]]['index'] for x in range(len(sortScore)) if tfidfscore[sortScore[-x-1]] < 1 and tfidfscore[sortScore[-x-1]] > 0][1:]
+	bestScore = [tfidfscore[sortScore[-x-1]] for x in range(len(sortScore)) if tfidfscore[sortScore[-x-1]] < 1 and tfidfscore[sortScore[-x-1]] > 0][1:]
 	return bestIndex, bestScore
 
 
