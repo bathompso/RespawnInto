@@ -1,5 +1,5 @@
-var width = 500,
-		height = 500,
+var width = 470,
+		height = 470,
 		outerRadius = Math.min(width, height) / 2 - 10,
 		innerRadius = outerRadius - 24;
 
@@ -20,6 +20,7 @@ var path = d3.svg.chord()
 var svg = d3.select("#chordplot").append("svg")
 		.attr("width", width)
 		.attr("height", height)
+		.attr("margin", "0 auto")
 	.append("g")
 		.attr("id", "circle")
 		.attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
