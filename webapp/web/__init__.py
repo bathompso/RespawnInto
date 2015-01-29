@@ -60,8 +60,9 @@ def create_app(debug=True):
     print("Server_name = {0}".format(app.config["SERVER_NAME"]))
     
     # Create database connection (which will exist throughout the entire app)
-    #with app.app_context():
-    #    from .model.database import db
+    db = pymysql.connect(user=app.config['DB_USER'], passwd=app.config['DB_PASS'], host=app.config['DB_HOST'], db=app.config['DB_NAME'])
+    session = db.cursor(pymysql.cursors.DictCursor)
+    app.db = session
 
     # Register blueprints
     from .controllers.index import index_page

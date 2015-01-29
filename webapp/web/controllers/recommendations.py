@@ -54,8 +54,14 @@ def ign_review_similarity(session, name, platforms):
 recommendations_page = flask.Blueprint("recommendations_page", __name__)
 @recommendations_page.route('/recommendations.html', methods=['GET'])
 def func_name():
-	db = pymysql.connect(user=current_app.config['DB_USER'], passwd=current_app.config['DB_PASS'], host=current_app.config['DB_HOST'], db=current_app.config['DB_NAME'])
-	session = db.cursor(pymysql.cursors.DictCursor)
+	try:
+		current_app.db.execute('SHOW TABLES')
+		current_app.db.fetchall()
+	except Exception as e:
+		print('DB ERROR:', e)
+		db = pymysql.connect(user=current_app.config['DB_USER'], passwd=current_app.config['DB_PASS'], host=current_app.config['DB_HOST'], db=current_app.config['DB_NAME'])
+		session = db.cursor(pymysql.cursors.DictCursor)
+		current_app.db = session
 	templateDict = {}
 
 	# Read in all parameters from request
@@ -74,15 +80,15 @@ def func_name():
 
 	# Get recommended games from database
 	recommendations = []
-	bestIndex, bestScore = ign_comment_similarity(session, gameTitle, usablePlatforms)
+	bestIndex, bestScore = ign_comment_similarity(current_app.db, gameTitle, usablePlatforms)
 	if len(bestIndex) == 0:
-		bestIndex, bestScore = ign_review_similarity(session, gameTitle, usablePlatforms)
+		bestIndex, bestScore = ign_review_similarity(current_app.db, gameTitle, usablePlatforms)
 
 	for i in bestIndex[:12]:
-		session.execute('SELECT * FROM games WHERE games.index = %s' % i)
-		gameData = session.fetchall()
-		session.execute('SELECT platforms.name FROM (games JOIN games_to_platforms AS g2p ON (games.index = g2p.games_index)) JOIN platforms ON (g2p.platforms_index = platforms.index) WHERE games.index = %s AND (platforms.name = "%s")' % (i, '" OR platforms.name = "'.join(usablePlatforms)))
-		platformData = session.fetchall()
+		current_app.db.execute('SELECT * FROM games WHERE games.index = %s' % i)
+		gameData = current_app.db.fetchall()
+		current_app.db.execute('SELECT platforms.name FROM (games JOIN games_to_platforms AS g2p ON (games.index = g2p.games_index)) JOIN platforms ON (g2p.platforms_index = platforms.index) WHERE games.index = %s AND (platforms.name = "%s")' % (i, '" OR platforms.name = "'.join(usablePlatforms)))
+		platformData = current_app.db.fetchall()
 		gameData[0]['searchName'] = '+'.join(gameData[0]['name'].split())
 		gameData[0]['platform'] = platformData[0]['name']
 		recommendations.append(gameData[0])
