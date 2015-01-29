@@ -1,43 +1,52 @@
 {% extends 'layout.html' %}
 
 {% block head %}
-<script src="http://code.highcharts.com/highcharts.js"></script>
-<script src="http://code.highcharts.com/modules/exporting.js"></script>
-<script src="../static/js/highcharts.dark.js"></script>
-<script rel='stylesheet' type='text/css'>
-.highcharts-legend { display: none };
-</script>
-<style>
-.custom-highchart-double {
-      height: 400px;
-      width: 47%;
-      float: left;
-      margin-right: 2%;
-}
-.custom-highchart-single {
-      height: 400px;
-      width: 47%;
-      margin: 0 auto
-}
-.highcharts-button { display: none; }
-</style>
 {% endblock head %}
 
 {% block body %}
+<script src="http://d3js.org/d3.v2.min.js?2.8.1"></script>
 
-<script>{% include 'chartRatingHist.js' %}</script>
-<script>{% include 'chartRatingScatter.js' %}</script>
-<script>{% include 'chartReviewHist.js' %}</script>
+<style>
+#circle circle {
+	fill: none;
+	pointer-events: all;
+}
+
+.group path {
+	fill-opacity: .4;
+}
+
+path.chord {
+	stroke: #000;
+	stroke-width: .25px;
+}
+
+#circle:hover path.fade {
+	display: none;
+}
+</style>
 
 <div style="width: 90%; margin: auto;">
-	<h2 style="text-align: center;">Interesting Data Analysis</h2>
-	<div>
-	  <div id="chartRatingHist" class="custom-highchart-double"></div>
-	  <div id="chart1" class="custom-highchart-double"></div>
+	<h2 style="text-align: center; padding-bottom: 30px;">Interesting Data Analysis</h2>
+	<hr>
+	<div class="row" style="padding-top: 10px;">
+		<div class="col-sm-6" style="padding-right: 20px;">
+			<div style="text-align: center; font-size: 1.6em; padding-bottom: 10px;">Recommended Game Genres</div>
+			<div style="text-align: center; font-weight: 100; padding-bottom: 10px;">Hover over an edge segment to see all recommended genres for a specific game genre. Hover over a connection to see the percentage of all recommendations in each direction (chosen genre to recommended genre).</div>
+			<div id="chordplot"></div>
+		</div>
+		<div class="col-sm-6" style="font-size: 1.2em; padding-left: 50px; padding-top: 50px;">
+			<p>Using the IGN commenter dataset, we can look at which game genres are most insular. That is: <i>when showing recommendations for a particular game, how many are from the same genre?</i></p>
+			<p>A chord plot illustrating the connections between input game genre and recommended ones, is shown on the left.</p>
+			<p>The most insular category, by a large margin, is <b>Wrestling</b>, where 14% of all recommendations for wrestling games are also in the wrestling genre. As wrestling games are only 0.4% of the entire set, this is a 35x increase as compared to random. There appears to be a strong niche group which prefers to play most wrestling games that are released.</p>
+			<p>The next most insular category is <b>Party</b>, which may be due to more casual gamers. The fraction of party games recommended from other party games is 9x higher than the overall percentage of party games in the dataset.</p>
+			<p>Most large game categories have insular factors of roughly 2-4x, indicating that people who enjoy a certain game category prefer other games in the exact same category.</p> 
+		</div>
+
 	</div>
-	<div style="clear:both"></div>
-	<div id="chartReviewHist" class="custom-highchart-single"></div>
 </div>
+
+<script src="../static/js/chordplot.js"></script>
 
 
 

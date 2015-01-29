@@ -3080,7 +3080,7 @@ input[type="reset"].btn-block,
 input[type="button"].btn-block {
   width: 100%;
 }
-.fade {
+/*.fade {
   opacity: 0;
   -webkit-transition: opacity .15s linear;
        -o-transition: opacity .15s linear;
@@ -3088,7 +3088,7 @@ input[type="button"].btn-block {
 }
 .fade.in {
   opacity: 1;
-}
+}*/
 .collapse {
   display: none;
 }
