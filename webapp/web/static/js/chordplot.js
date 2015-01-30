@@ -28,8 +28,8 @@ var svg = d3.select("#chordplot").append("svg")
 svg.append("circle")
 		.attr("r", outerRadius);
 
-d3.csv("../static/data/genres.csv", function(genres) {
-	d3.json("../static/data/genres.json", function(matrix) {
+d3.csv("../static/data/genres2.csv", function(genres) {
+	d3.json("../static/data/genres2.json", function(matrix) {
 
 		// Compute the chord layout.
 		layout.matrix(matrix);
