@@ -1,5 +1,5 @@
-var width = 470,
-		height = 470,
+var width = 450,
+		height = 450,
 		outerRadius = Math.min(width, height) / 2 - 10,
 		innerRadius = outerRadius - 24;
 
@@ -18,10 +18,12 @@ var path = d3.svg.chord()
 		.radius(innerRadius);
 
 var svg = d3.select("#chordplot").append("svg")
-		.attr("width", width)
-		.attr("height", height)
+		.attr("viewBox", "0 0 450 450")
+		.attr("preserveAspectRatio", "xMinYMin")
 		.attr("margin", "0 auto")
 	.append("g")
+		.attr("width", width)
+		.attr("height", height)
 		.attr("id", "circle")
 		.attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
 
@@ -93,3 +95,4 @@ d3.csv("../static/data/genres2.csv", function(genres) {
 		}
 	});
 });
+
