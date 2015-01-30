@@ -1,0 +1,45 @@
+{% extends 'layout.html' %}
+
+{% block head %}
+<style>
+.highcharts-button { display: none; }
+.highcharts-xaxis-title { font-size: 1.3em; }
+.highcharts-yaxis-title { font-size: 1.3em; }
+</style>
+{% endblock head %}
+
+{% block body %}
+<script src="../static/js/highcharts.js"></script>
+<script src="../static/js/exporting.js"></script>
+
+<div style="width: 90%; margin: auto; font-size: 1.2em; line-height: 1.8em;">
+	<div class="row"><div class="col-sm-6">
+		<h2 style="text-align: center; padding-bottom: 10px;">Data Set</h2>
+		<p>The data for this project was scraped from <a href="http://ign.com" style="color: white; text-decoration: underline;">IGN.com</a>, a video game review website. From IGN, the following information was obtained:
+		<ul>
+			<li>Basic game information, like Name, Platform, Developer, Genre and Release Date on nearly 6500 games.</li>
+			<li>Game ratings from the IGN reviewer, as well as the aggregate community score for 6000 games.</li>
+			<li>Full review text on nearly 900 games.</li>
+			<li>List of top-level commenters and comment text on 850 games.</li>
+		</ul></p>
+	</div><div class="col-sm-6">
+		<div id="chartReviewHist"></div>
+	</div></div>
+	<hr style="margin: 40px 0px;">
+	<div class="row"><div class="col-sm-6">
+		<div id="chartCommentHist" style="margin-top: 70px;"></div>
+	</div><div class="col-sm-6">
+		<h2 style="text-align: center; padding-bottom: 10px;">Algorithm</h2>
+		<p>Using this information, several recommendation systems can be implemented:
+		<ul>
+			<li><b>Jaccard Similarity</b>: By scraping commenter usernames, individuals can be tracked between games. Using the amount of overlapping commenters, a <a href="http://en.wikipedia.org/wiki/	Jaccard_index" style="color: white; text-decoration: underline;">Jaccard Similarity</a> measure (cosine similarity) can be obtained between games. This similarity measure is used for the bulk of video games in the dataset.<br/>&nbsp;</li>
+			<li><b>TF-IDF</b>: For games without commenter information, or those games with no overlapping commenters, the full review text of all games in the dataset is used. A <a href="http://en.	wikipedia.org/wiki/Tf–idf" style="color: white; text-decoration: underline">Term Freqency-Inverse Document Frequency</a> analysis of the selected game's review highlights other game reviews about similar topics.</li>
+		</ul></p>
+	</div></div>
+</div>
+
+<script>{% include 'chartReviewHist.js' %}</script>
+<script>{% include 'chartCommentHist.js' %}</script>
+<script src="../static/js/highcharts.dark.js"></script>
+
+{% endblock body %}

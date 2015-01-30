@@ -69,11 +69,13 @@ def create_app(debug=True):
     from .controllers.slides import slides_page
     from .controllers.analysis import analysis_page
     from .controllers.recommendations import recommendations_page
+    from .controllers.data import data_page
     
     app.register_blueprint(index_page)
     app.register_blueprint(slides_page)
     app.register_blueprint(analysis_page)
     app.register_blueprint(recommendations_page)
+    app.register_blueprint(data_page)
     
 
     return app

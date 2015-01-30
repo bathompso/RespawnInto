@@ -58,18 +58,18 @@ for k in multiCommenters.keys():
     thisGames = session.fetchall()
     commenterGames[k] = [x['games_index'] for x in thisGames]
 
-#minIndexes, cnt, t0 = [], 0, time()
-#for k,v in commenterGames.iteritems():
-#	if cnt % 50 == 0: print('Working on %d / %d...  ELAPSED: %.1f' % (cnt, len(commenterGames.keys()), time()-t0))
-#	cnt += 1
-#	thisminIndexes = []
-#	for g in v:
-#		bestIndex, bestScore = ign_comment_similarity(session, g)
-#		matchIdx = [x for x in range(len(bestIndex)) if bestIndex[x] in v]
-#		if len(matchIdx) > 0: thisminIndexes.append(min(matchIdx))
-#	if len(thisminIndexes) > 0: minIndexes.append(min(thisminIndexes))
-#minIndexes = np.array(minIndexes)
-#np.savetxt('validate.txt', minIndexes)
+minIndexes, cnt, t0 = [], 0, time()
+for k,v in commenterGames.iteritems():
+	if cnt % 50 == 0: print('Working on %d / %d...  ELAPSED: %.1f' % (cnt, len(commenterGames.keys()), time()-t0))
+	cnt += 1
+	thisminIndexes = []
+	for g in v:
+		bestIndex, bestScore = ign_comment_similarity(session, g)
+		matchIdx = [x for x in range(len(bestIndex)) if bestIndex[x] in v]
+		if len(matchIdx) > 0: thisminIndexes.append(min(matchIdx))
+	if len(thisminIndexes) > 0: minIndexes.append(min(thisminIndexes))
+minIndexes = np.array(minIndexes)
+np.savetxt('validate.txt', minIndexes)
 
 minIndexes, cnt, t0 = [], 0, time()
 for k,v in commenterGames.iteritems():
