@@ -1,5 +1,5 @@
-var width = 450,
-		height = 450,
+var width = 480,
+		height = 480,
 		outerRadius = Math.min(width, height) / 2 - 10,
 		innerRadius = outerRadius - 24;
 
@@ -18,12 +18,9 @@ var path = d3.svg.chord()
 		.radius(innerRadius);
 
 var svg = d3.select("#chordplot").append("svg")
-		.attr("viewBox", "0 0 450 450")
-		.attr("preserveAspectRatio", "xMinYMin")
-		.attr("margin", "0 auto")
-	.append("g")
 		.attr("width", width)
 		.attr("height", height)
+	.append("g")
 		.attr("id", "circle")
 		.attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
 
