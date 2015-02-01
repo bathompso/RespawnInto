@@ -1,0 +1,28 @@
+{% extends 'layout.html' %}
+
+{% block head %}
+<style>
+.content a {
+	color: white;
+	text-decoration: underline;
+}
+
+.content a:hover {
+	color: #aaa;
+	text-decoration: none;
+}
+</style>
+{% endblock head %}
+
+{% block body %}
+<h2 style="text-align: center; margin-bottom: 50px;">About RespawnInto</h2>
+<div class="content" style="width: 800px; margin: auto; font-size: 1.4em;">
+	<p>Born out of a love for video games, RespawnInto is an <a href="http://insightdatascience.com">Insight Data Science</a> project created by Ben Thompson.</p>
+	<p>If you've made it here, no doubt you're considering hiring me. To find out more:
+	<ul>
+		<li><a href="http://bathompso.com/blog">Read my blog</a></li>
+		<li>Connect with me on <a href="http://linkedin.com/in/bathompso">LinkedIn</a></li>
+		<li>Check out RespawnInto's codebase on <a href="https://github.com/bathompso/RespawnInto">github</a></li>
+	</ul></p>
+</div>
+{% endblock body %}

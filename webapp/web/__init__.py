@@ -21,11 +21,11 @@ def create_app(debug=True):
     	# ----------------------------------------------------------
         # Set up getsentry.com logging - only use when in production
         # ----------------------------------------------------------
-        #from raven.contrib.flask import Sentry
+        from raven.contrib.flask import Sentry
         
-        #dsn = ''
-        #app.config['SENTRY_DSN'] = dsn
-        #sentry = Sentry(app)
+        dsn = 'https://b5bc0f53140e4ce9b8d8aaae6be9f886:96cdd83c52a9423c883431bedd24511e@app.getsentry.com/37062'
+        app.config['SENTRY_DSN'] = dsn
+        sentry = Sentry(app)
         # ----------------------------------------------------------
     
         # Configuration when running under uWSGI
@@ -68,10 +68,12 @@ def create_app(debug=True):
     from .controllers.index import index_page
     from .controllers.recommendations import recommendations_page
     from .controllers.data import data_page
+    from .controllers.about import about_page
     
     app.register_blueprint(index_page)
     app.register_blueprint(recommendations_page)
     app.register_blueprint(data_page)
+    app.register_blueprint(about_page)
     
 
     return app
