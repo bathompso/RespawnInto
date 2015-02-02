@@ -56,7 +56,7 @@ path.chord {
 			<li>List of top-level commenters and comment text.</li>
 		</ul></p>
 	</div><div class="col-sm-6">
-		<div id="chartReviewHist"></div>
+		<div id="chartReviewHist" style="margin-top: 70px;"></div>
 	</div></div>
 
 
@@ -66,12 +66,26 @@ path.chord {
 		<h2 style="text-align: center; padding-bottom: 10px;">Algorithm</h2>
 		<p>Using this information, several recommendation systems can be implemented:
 		<ul>
-			<li><b>Jaccard Similarity</b>: Using the number of overlapping commenters, a <a href="http://en.wikipedia.org/wiki/Jaccard_index">Jaccard Similarity</a> measure (cosine similarity) can be obtained between games. This similarity measure is used for the bulk of video games recommendations.<br/>&nbsp;</li>
-			<li><b>TF-IDF</b>: For games without commenter information, or those with very few overlapping commenters, the full review text of the game is used. A <a href="http://en.wikipedia.org/wiki/Tf–idf">Term Freqency-Inverse Document Frequency</a> analysis highlights other game reviews about similar topics.</li>
+			<li><b>Jaccard Similarity</b>: Using the number of overlapping commenters, a <a href="http://en.wikipedia.org/wiki/Jaccard_index">Jaccard Similarity</a> measure (cosine similarity) can be obtained between games. This similarity measure is used for the bulk of video game recommendations.<br/>&nbsp;</li>
+			<li><b>TF-IDF</b>: For games without commenter information, a <a href="http://en.wikipedia.org/wiki/Tf–idf">Term Freqency-Inverse Document Frequency</a> analysis of the review text highlights other game reviews about similar topics.</li>
 		</ul></p>
 	</div></div>
 
-	<div class="row" id="validation">
+	<div class="row" id="chordwrapper">
+		<div class="col-sm-6">
+			<h2 style="text-align: center; padding-bottom: 10px; font-size: 2.2em;">Recommended Game Genres</h2>
+			<div style="text-align: center; font-weight: 100; padding-bottom: 10px;">Hover over an edge segment to see all recommended genres for a specific game genre. Hover over a connection to see the percentage of all recommendations in each direction (chosen genre to recommended genre).</div>
+			<div id="chordplot"></div>
+		</div>
+		<div class="col-sm-6" style="font-size: 1.4em; margin-top: 70px;">
+			<p><i style="font-size: 1.3em;">When showing recommendations for a particular game, how many are from the same genre?</i></p>
+			<p style="padding-bottom: 10px;">The most ''insular'' category, by a large margin, is <b>Wrestling</b> (pink segment near the top), where 14% of all recommendations for wrestling games are also in the wrestling genre (a 35x increase over random chance). There appears to be a strong niche group which prefers to play most wrestling games that are released.</p>
+			<p style="padding-bottom: 10px;">The next most insular category is <b>Party</b> (small blue segment near the bottom), which may be due to more casual gamers. The fraction of party games recommended from other party games is 9x higher than the overall percentage of party games in the dataset.</p>
+			<p style="padding-bottom: 10px;">Most large game categories have insular factors of roughly 2-4x random chance, indicating that people who enjoy a certain game category prefer other games in the exact same category.</p> 
+		</div>
+	</div>
+
+		<div class="row" id="validation">
 		<div class="col-sm-6">
 			<h2 style="text-align: center; font-size: 2.2em; padding-bottom: 10px;">Validation</h2>
 			<div style="text-align: center; font-weight: 100; padding-bottom: 10px;">Prediction success for users from Gamespot using the RespawnInto recommendations vs best-in-genre vs random chance.</div>
@@ -88,20 +102,7 @@ path.chord {
 			<p>The final version of RespawnInto displays 12 recommended games in order to make the interface as simple as possible. In this scenario, the RespawnInto algorithm is 75% better than the <i>best-in-genre</i> selection, and 30 times better than random.</p>
 		</div>
 	</div>
-
-	<div class="row" id="chordwrapper">
-		<div class="col-sm-6">
-			<h2 style="text-align: center; padding-bottom: 10px; font-size: 2.2em;">Recommended Game Genres</h2>
-			<div style="text-align: center; font-weight: 100; padding-bottom: 10px;">Hover over an edge segment to see all recommended genres for a specific game genre. Hover over a connection to see the percentage of all recommendations in each direction (chosen genre to recommended genre).</div>
-			<div id="chordplot"></div>
-		</div>
-		<div class="col-sm-6" style="font-size: 1.4em; margin-top: 70px;">
-			<p><i style="font-size: 1.3em;">When showing recommendations for a particular game, how many are from the same genre?</i></p>
-			<p style="padding-bottom: 10px;">The most ''insular'' category, by a large margin, is <b>Wrestling</b> (pink segment near the top), where 14% of all recommendations for wrestling games are also in the wrestling genre (a 35x increase over random chance). There appears to be a strong niche group which prefers to play most wrestling games that are released.</p>
-			<p style="padding-bottom: 10px;">The next most insular category is <b>Party</b> (small blue segment near the bottom), which may be due to more casual gamers. The fraction of party games recommended from other party games is 9x higher than the overall percentage of party games in the dataset.</p>
-			<p style="padding-bottom: 10px;">Most large game categories have insular selections of roughly 2-4x random chance, indicating that people who enjoy a certain game category prefer other games in the exact same category.</p> 
-		</div>
-	</div>
+	
 </div>
 <div id="slidehelper" style="display: none; text-align: center; text-size: 1.5em;">You have activated slide mode. Press the down arrow to exit.</div>
 <div style="padding-bottom: 30px;">&nbsp;</div>
@@ -133,12 +134,12 @@ $(document).keydown(function(e) {
 			$('#dataset').show(200)
 			current_slide -= 1;
 		} else if (current_slide == 3) {
-			$('#validation').hide(200)
+			$('#chordwrapper').hide(200)
 			$('#algorithm').show(200)
 			current_slide -= 1;
 		} else if (current_slide == 4) {
-			$('#chordwrapper').hide(200)
-			$('#validation').show(200)
+			$('#validation').hide(200)
+			$('#chordwrapper').show(200)
 			current_slide -= 1;
 		};
 		break;
@@ -149,12 +150,12 @@ $(document).keydown(function(e) {
 			$('#dataset').hide(200)
 			current_slide += 1;
 		} else if (current_slide == 2) {
-			$('#validation').show(200)
+			$('#chordwrapper').show(200)
 			$('#algorithm').hide(200)
 			current_slide += 1;
 		} else if (current_slide == 3) {
-			$('#chordwrapper').show(200)
-			$('#validation').hide(200)
+			$('#validation').show(200)
+			$('#chordwrapper').hide(200)
 			current_slide += 1;
 		};
 		break;
