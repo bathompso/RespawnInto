@@ -1,41 +1,7 @@
 {% extends 'layout.html' %}
 
 {% block head %}
-<style>
-.highcharts-button { display: none; }
-.highcharts-xaxis-title { font-size: 1.3em; }
-.highcharts-yaxis-title { font-size: 1.3em; }
 
-#circle circle {
-	fill: none;
-	pointer-events: all;
-}
-
-.group path {
-	fill-opacity: .6;
-}
-
-path.chord {
-	stroke: #FFF;
-	stroke-width: .15px;
-}
-
-#circle:hover path.fade {
-	display: none;
-}
-
-.row { padding-bottom: 50px; }
-
-.content * a {
-	color: white;
-	text-decoration: underline;
-}
-
-.content * a:hover {
-	color: #aaa;
-	text-decoration: none;
-}
-</style>
 {% endblock head %}
 
 {% block body %}
@@ -45,31 +11,55 @@ path.chord {
 <script>var current_slide = 0;</script>
 
 <div class="content" style="width: 1000px; margin: auto;">
-	<div class="row" id="dataset"><div class="col-sm-6" style="font-size: 1.6em;">
-		<h2 style="text-align: center; padding-bottom: 10px;">Data Set</h2>
-		<p>The data for this project were scraped from <a href="http://ign.com">IGN.com</a>, a video game review website:
-		<ul>
-			<li>Basic game information (Name, Platform, Genre, etc.)</li>
-			<li>Game ratings from the IGN reviewer.</li>
-			<li>Game ratings from the user community.</li>
-			<li>Full review text.</li>
-			<li>List of top-level commenters and comment text.</li>
-		</ul></p>
-	</div><div class="col-sm-6">
-		<div id="chartReviewHist" style="margin-top: 70px;"></div>
-	</div></div>
+	<div class="row" id="dataset">
+		<div class="col-sm-6 webtext">
+			<h2 style="text-align: center; padding-bottom: 10px;">Data Set</h2>
+			<p>The data for this project were scraped from <a href="http://ign.com">IGN.com</a>, a video game review website:
+			<ul>
+				<li>Basic game information (Name, Platform, Genre, etc.) on over 6500 games.</li>
+				<li>Game ratings from the IGN reviewer and the user community on nearly 6000 games.</li>
+				<li>Full review text on approximately 900 games.</li>
+				<li>List of top-level commenters and comment text on 850 games.</li>
+			</ul></p>
+		</div>
+		<div class="col-sm-6 slidetext">
+			<h2 style="text-align: center; padding-bottom: 10px;">Data</h2>
+			<p>Pulled data from <u>IGN.com</u>, a video game review website:
+			<ul class="slidelist">
+				<li>Game Information</li>
+				<li>Full Review Text</li>
+				<li>Commenter Usernames</li>
+			</ul>
+			</p>
+		</div> 
+		<div class="col-sm-6">
+			<div id="chartReviewHist" style="margin-top: 70px;"></div>
+		</div>
+	</div>
 
 
-	<div class="row" id="algorithm"><div class="col-sm-6">
-		<div id="chartCommentHist" style="margin-top: 70px;"></div>
-	</div><div class="col-sm-6" style="font-size: 1.4em;">
-		<h2 style="text-align: center; padding-bottom: 10px;">Algorithm</h2>
-		<p>Using this information, several recommendation systems can be implemented:
-		<ul>
-			<li><b>Jaccard Similarity</b>: Using the number of overlapping commenters, a <a href="http://en.wikipedia.org/wiki/Jaccard_index">Jaccard Similarity</a> measure (cosine similarity) can be obtained between games. This similarity measure is used for the bulk of video game recommendations.<br/>&nbsp;</li>
-			<li><b>TF-IDF</b>: For games without commenter information, a <a href="http://en.wikipedia.org/wiki/Tf–idf">Term Freqency-Inverse Document Frequency</a> analysis of the review text highlights other game reviews about similar topics.</li>
-		</ul></p>
-	</div></div>
+	<div class="row" id="algorithm">
+		<div class="col-sm-6">
+			<div id="chartCommentHist" style="margin-top: 70px;"></div>
+		</div>
+		<div class="col-sm-6 webtext">
+			<h2 style="text-align: center; padding-bottom: 10px;">Algorithm</h2>
+			<p>Using this information, several recommendation systems can be implemented:
+			<ul>
+				<li><b>Jaccard Similarity</b>: Using the number of overlapping commenters, a <a href="http://en.wikipedia.org/wiki/Jaccard_index">Jaccard Similarity</a> measure can be obtained between games. This similarity measure is used for the bulk of video game recommendations.<br/>&nbsp;</li>
+				<li><b>TF-IDF</b>: For games without commenter information, a <a href="http://en.wikipedia.org/wiki/Tf–idf">Term Freqency-Inverse Document Frequency</a> analysis of the review text highlights other game reviews about similar topics.</li>
+			</ul></p>
+		</div>
+		<div class="col-sm-6 slidetext">
+			<h2 style="text-align: center; padding-bottom: 10px;">Algorithm</h2>
+			<p>Two algorithms to make recommendations:
+			<ul class="slidelist">
+				<li>Jaccard Similarity</li>
+				<li>TF-IDF on game reviews</li>
+			</ul>
+			</p>
+		</div>
+	</div>
 
 	<div class="row" id="chordwrapper">
 		<div class="col-sm-6">
@@ -77,21 +67,32 @@ path.chord {
 			<div style="text-align: center; font-weight: 100; padding-bottom: 10px;">Hover over an edge segment to see all recommended genres for a specific game genre. Hover over a connection to see the percentage of all recommendations in each direction (chosen genre to recommended genre).</div>
 			<div id="chordplot"></div>
 		</div>
-		<div class="col-sm-6" style="font-size: 1.4em; margin-top: 70px;">
+		<div class="col-sm-6 webtext" style="margin-top: 70px;">
 			<p><i style="font-size: 1.3em;">When showing recommendations for a particular game, how many are from the same genre?</i></p>
 			<p style="padding-bottom: 10px;">The most ''insular'' category, by a large margin, is <b>Wrestling</b> (pink segment near the top), where 14% of all recommendations for wrestling games are also in the wrestling genre (a 35x increase over random chance). There appears to be a strong niche group which prefers to play most wrestling games that are released.</p>
 			<p style="padding-bottom: 10px;">The next most insular category is <b>Party</b> (small blue segment near the bottom), which may be due to more casual gamers. The fraction of party games recommended from other party games is 9x higher than the overall percentage of party games in the dataset.</p>
 			<p style="padding-bottom: 10px;">Most large game categories have insular factors of roughly 2-4x random chance, indicating that people who enjoy a certain game category prefer other games in the exact same category.</p> 
 		</div>
+		<div class="col-sm-6 slidetext" style="margin-top: 70px;">
+			<p><i>When showing recommendations for a particular game, how many are from the same genre?</i></p>
+			<table border="0" style="width: 70%; margin-left: auto; margin-right: auto; margin-top: 40px;">
+				<tr><th class="genrecell">Genre</th><th class="factorcell">Insular Factor</th></tr>
+				<tr><td class="genrecell">Wrestling</td><td class="factorcell">35</td></tr>
+				<tr><td class="genrecell">Party</td><td class="factorcell">8.7</td></tr>
+				<tr><td class="genrecell">Productivity</td><td class="factorcell">8.6</td></tr>
+				<tr><td class="genrecell">Flight</td><td class="factorcell">4.4</td></tr>
+				<tr><td class="genrecell">Sports</td><td class="factorcell">3.7</td></tr>
+			</table>
+		</div>
 	</div>
 
-		<div class="row" id="validation">
+	<div class="row" id="validation">
 		<div class="col-sm-6">
 			<h2 style="text-align: center; font-size: 2.2em; padding-bottom: 10px;">Validation</h2>
 			<div style="text-align: center; font-weight: 100; padding-bottom: 10px;">Prediction success for users from Gamespot using the RespawnInto recommendations vs best-in-genre vs random chance.</div>
 			<div id="highchart" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
 		</div>
-		<div class="col-sm-6" style="font-size: 1.3em; margin-top: 70px;">
+		<div class="col-sm-6 webtext" style="margin-top: 70px;">
 			<p>To validate, commenter names were scraped from over 300 game review pages on <a href="http://www.gamespot.com">gamespot.com</a> (another game review website), where 1400 users had commented on 2+ games.</p>
 			<p>One of the games was fed into the recommendation algorithm, and the gamespot user was classified as "correctly predicted" if the other game appeared in some top number of recommended games.</p>
 			<p>The successful prediction rate by the recommendation algorithm was compared to two other methods:
@@ -100,6 +101,38 @@ path.chord {
 				<li><b>Best-In-Genre</b>: Only games in the same genre as the selected game were returned, and were ordered by best IGN Score.</li>
 			</ul></p>
 			<p>The final version of RespawnInto displays 12 recommended games in order to make the interface as simple as possible. In this scenario, the RespawnInto algorithm is 75% better than the <i>best-in-genre</i> selection, and 30 times better than random.</p>
+		</div>
+		<div class="col-sm-6 slidetext" style="margin-top: 70px;">
+			<ul class="slidelist">
+				<li>Pulled commenters from <u>gamespot.com</u> with 2+ comments</li>
+				<li>Given 1 game, can my algorithm predict the other in top 6, 12, 18?</li>
+				<li>Compared to: Random, Best-In-Genre</li>
+			</ul>
+		</div>
+	</div>
+
+	<div class="row" id="aboutme">
+		<div class="col-sm-6 slidetext" style="text-align: center">
+			<h1>Ben Thompson</h1>
+			<h3>Texas Christian University</h3>
+		</div>
+		<div class="col-sm-6 slidetext" style="margin-bottom: -20px;">
+			<img src="../static/img/binarybanner.jpg" style="width: 100%; border-radius: 10px;">
+		</div>
+		<div class="col-sm-10 slidetext">
+			<div style="width: 100%; padding-top: 20px;">
+				<img src="../static/img/horned_frog.jpg" style="width: 100%; height: 337px; border-radius: 10px;">
+			</div>
+		</div>
+		<div class="col-sm-2 slidetext">
+			<div style="padding-top: 20px; margin-left: -15px;">
+				<img src="../static/img/globularClusterM80.jpg" style="width: 100%; border-radius: 10px;">
+			</div>
+		</div>
+		<div class="col-sm-2 slidetext">
+			<div style="padding-top: 20px; margin-left: -15px; margin-top: -5px;">
+				<img src="../static/img/headshot.jpg" style="width: 100%; border-radius: 10px;">
+			</div>
 		</div>
 	</div>
 	
@@ -117,12 +150,16 @@ $(document).keydown(function(e) {
 	switch(e.which) {
 		case 38: // up [Enters slideshow mode]
 		$('.row').hide()
+		$('.webtext').hide()
+		$('.slidetext').show()
 		$('#dataset').show()
 		$('#slidehelper').show()
 		current_slide = 1;
 		break;
 
 		case 40: // down [Exits slideshow mode]
+		$('.webtext').show()
+		$('.slidetext').hide()
 		$('.row').show()
 		$('#slidehelper').hide()
 		current_slide = 0;
@@ -141,6 +178,10 @@ $(document).keydown(function(e) {
 			$('#validation').hide(200)
 			$('#chordwrapper').show(200)
 			current_slide -= 1;
+		} else if (current_slide == 5) {
+			$('#aboutme').hide(200)
+			$('#validation').show(200)
+			current_slide -= 1;
 		};
 		break;
 
@@ -156,6 +197,10 @@ $(document).keydown(function(e) {
 		} else if (current_slide == 3) {
 			$('#validation').show(200)
 			$('#chordwrapper').hide(200)
+			current_slide += 1;
+		} else if (current_slide == 4) {
+			$('#aboutme').show(200)
+			$('#validation').hide(200)
 			current_slide += 1;
 		};
 		break;

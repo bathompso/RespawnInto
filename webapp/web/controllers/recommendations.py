@@ -75,7 +75,8 @@ def func_name():
 	templateDict['name'] = gameTitle
 	templateDict['linkName'] = '+'.join(gameTitle.split())
 	if len(usablePlatforms) < 2: platformString = ''.join(usablePlatforms)
-	else: platformString = ', '.join(usablePlatforms[:-1]) + ' and %s' % usablePlatforms[-1]
+	elif len(usablePlatforms) < 3: platformString = ' and '.join(usablePlatforms)
+	else: platformString = ', '.join(usablePlatforms[:-1]) + ', and %s' % usablePlatforms[-1]
 	templateDict['usablePlatforms'] = platformString
 
 	# Get recommended games from database

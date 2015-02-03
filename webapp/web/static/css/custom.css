@@ -1,0 +1,103 @@
+.highcharts-button { display: none; }
+
+#circle circle {
+	fill: none;
+	pointer-events: all;
+}
+
+.group path {
+	fill-opacity: .6;
+}
+
+path.chord {
+	stroke: #FFF;
+	stroke-width: .15px;
+}
+
+#circle:hover path.fade {
+	display: none;
+}
+
+.row { 
+	padding-bottom: 50px; 
+}
+
+.row * a {
+	color: white;
+	text-decoration: underline;
+}
+
+.row * a:hover {
+	color: white;
+	text-decoration: none;
+}
+
+.row * a:visited {
+	color: white;
+	text-decoration: underline;
+}
+
+* {
+  padding: 0;
+  margin: 0;
+}
+.fit {
+  max-width: 180%;
+  max-height: 120%;
+}
+.center {
+  display: block;
+  margin: auto;
+}
+
+.slidetext {
+	display: none;
+	font-size: 1.8em;
+}
+
+.slidelist {
+	padding-left: 80px;
+}
+
+.slidelist li {
+	padding-top: 30px;
+}
+
+.webtext {
+	font-size: 1.3em;
+}
+
+.genrecell {
+	width: 30%;
+	text-align: center;
+	padding: 5px;
+}
+
+.factorcell {
+	width: 70%;
+	text-align: center;
+}
+
+.gamerow * a {
+	text-decoration: none;
+}
+
+.gamerow * a:hover {
+	text-decoration: underline;
+}
+
+.gamerow * a:visited {
+	text-decoration: none;
+}
+
+.webtext * li {
+	margin-left: 30px;
+}
+
+
+
+
+
+
+
+
