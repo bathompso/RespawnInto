@@ -2,6 +2,8 @@ from __future__ import print_function, division
 import pymysql
 import numpy as np
 from time import time
+import sys
+from sklearn.feature_extraction.text import TfidfVectorizer
 
 def ign_comment_similarity(session, name):
 	# Get selected game
@@ -23,6 +25,25 @@ def ign_comment_similarity(session, name):
 	bestScore = [jaccard[sortScore[-x-1]] for x in range(len(jaccard)) if jaccard[sortScore[-x-1]] < 1 and jaccard[sortScore[-x-1]] > 0]
 	return bestIndex, bestScore
 
+def ign_review_similarity(session, name):
+	# Get selected game
+	session.execute('SELECT games.index, games.name, ign_reviews.review FROM games JOIN ign_reviews ON (games.index = ign_reviews.games_index) WHERE games.index = "%s"' % name)
+	gameData = session.fetchall()
+	if len(gameData) == 0: return [], []
+	# Get all games and review text
+	session.execute('SELECT games.index, games.name, ign_reviews.review FROM games JOIN ign_reviews ON (games.index = ign_reviews.games_index)')
+	reviewData = session.fetchall()
+	# Compute TF-IDF similarities between reviews
+	reviewList = [x['review'] for x in reviewData]
+	reviewList.append(gameData[0]['review'])
+	tfidf = TfidfVectorizer().fit_transform(reviewList)
+	similarity = (tfidf * tfidf.T)
+	tfidfscore = [similarity[-1, x] for x in range(similarity.shape[1]-1)]
+	sortScore = np.argsort(tfidfscore)
+	bestIndex = [reviewData[sortScore[-x-1]]['index'] for x in range(len(sortScore)) if tfidfscore[sortScore[-x-1]] < 1 and tfidfscore[sortScore[-x-1]] > 0][1:]
+	bestScore = [tfidfscore[sortScore[-x-1]] for x in range(len(sortScore)) if tfidfscore[sortScore[-x-1]] < 1 and tfidfscore[sortScore[-x-1]] > 0][1:]
+	return bestIndex, bestScore
+
 def genre_similarity(session, name):
 	# Get selected game
 	session.execute('SELECT games.index, games.name, genres.name FROM (games JOIN games_to_genres AS gm2gn ON (games.index = gm2gn.games_index)) JOIN genres ON (gm2gn.genres_index = genres.index) WHERE games.index = %d' % name)
@@ -38,6 +59,12 @@ def genre_similarity(session, name):
 	bestScore = [genreScore[sortScore[-x-1]] for x in range(len(genreScore)) if genreScore[sortScore[-x-1]] > 0]
 	return bestIndex, bestScore
 
+tests = {'commenters': False, 'reviews': False, 'genres': False}
+for s in sys.argv[1:]:
+	try:
+		tests[s] = True
+	except:
+		pass
 
 db = pymysql.connect(user='root', host='localhost', db='games')
 db.autocommit(1)
@@ -58,31 +85,47 @@ for k in multiCommenters.keys():
     thisGames = session.fetchall()
     commenterGames[k] = [x['games_index'] for x in thisGames]
 
-minIndexes, cnt, t0 = [], 0, time()
-for k,v in commenterGames.iteritems():
-	if cnt % 50 == 0: print('Working on %d / %d...  ELAPSED: %.1f' % (cnt, len(commenterGames.keys()), time()-t0))
-	cnt += 1
-	thisminIndexes = []
-	for g in v:
-		bestIndex, bestScore = ign_comment_similarity(session, g)
-		matchIdx = [x for x in range(len(bestIndex)) if bestIndex[x] in v]
-		if len(matchIdx) > 0: thisminIndexes.append(min(matchIdx))
-	if len(thisminIndexes) > 0: minIndexes.append(min(thisminIndexes))
-minIndexes = np.array(minIndexes)
-np.savetxt('validate.txt', minIndexes)
+if tests['commenters']:
+	minIndexes, cnt, t0 = [], 0, time()
+	for k,v in commenterGames.iteritems():
+		if cnt % 50 == 0: print('Working on %d / %d...  ELAPSED: %.1f' % (cnt, len(commenterGames.keys()), time()-t0))
+		cnt += 1
+		thisminIndexes = []
+		for g in v:
+			bestIndex, bestScore = ign_comment_similarity(session, g)
+			matchIdx = [x for x in range(len(bestIndex)) if bestIndex[x] in v]
+			if len(matchIdx) > 0: thisminIndexes.append(min(matchIdx))
+		if len(thisminIndexes) > 0: minIndexes.append(min(thisminIndexes))
+	minIndexes = np.array(minIndexes)
+	np.savetxt('validate.txt', minIndexes)
 
-minIndexes, cnt, t0 = [], 0, time()
-for k,v in commenterGames.iteritems():
-	if cnt % 50 == 0: print('Working on %d / %d...  ELAPSED: %.1f' % (cnt, len(commenterGames.keys()), time()-t0))
-	cnt += 1
-	thisminIndexes = []
-	for g in v:
-		bestIndex, bestScore = genre_similarity(session, g)
-		matchIdx = [x for x in range(len(bestIndex)) if bestIndex[x] in v]
-		if len(matchIdx) > 0: thisminIndexes.append(min(matchIdx))
-	if len(thisminIndexes) > 0: minIndexes.append(min(thisminIndexes))
-minIndexes = np.array(minIndexes)
-np.savetxt('validate_genre.txt', minIndexes)
+if tests['reviews']:
+	minIndexes, cnt, t0 = [], 0, time()
+	for k,v in commenterGames.iteritems():
+		if cnt % 50 == 0: print('Working on %d / %d...  ELAPSED: %.1f' % (cnt, len(commenterGames.keys()), time()-t0))
+		cnt += 1
+		thisminIndexes = []
+		for g in v:
+			bestIndex, bestScore = ign_review_similarity(session, g)
+			matchIdx = [x for x in range(len(bestIndex)) if bestIndex[x] in v]
+			if len(matchIdx) > 0: thisminIndexes.append(min(matchIdx))
+		if len(thisminIndexes) > 0: minIndexes.append(min(thisminIndexes))
+	minIndexes = np.array(minIndexes)
+	np.savetxt('validate_review.txt', minIndexes)
+
+if tests['genres']:
+	minIndexes, cnt, t0 = [], 0, time()
+	for k,v in commenterGames.iteritems():
+		if cnt % 50 == 0: print('Working on %d / %d...  ELAPSED: %.1f' % (cnt, len(commenterGames.keys()), time()-t0))
+		cnt += 1
+		thisminIndexes = []
+		for g in v:
+			bestIndex, bestScore = genre_similarity(session, g)
+			matchIdx = [x for x in range(len(bestIndex)) if bestIndex[x] in v]
+			if len(matchIdx) > 0: thisminIndexes.append(min(matchIdx))
+		if len(thisminIndexes) > 0: minIndexes.append(min(thisminIndexes))
+	minIndexes = np.array(minIndexes)
+	np.savetxt('validate_genre.txt', minIndexes)
 
 print('Detected %d Gamespot Commenters (of total %d) and %d Games' % (len(minIndexes), len(commenterGames.keys()), 855))
 for x in [6, 12, 18, 24, 30, 36, 42]:

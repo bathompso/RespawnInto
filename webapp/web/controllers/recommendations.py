@@ -35,10 +35,6 @@ def ign_review_similarity(session, name, platforms):
 	# Get all games and review text
 	session.execute('SELECT games.index, games.name, ign_reviews.review FROM ((games JOIN ign_reviews ON (games.index = ign_reviews.games_index)) JOIN games_to_platforms as g2p ON (games.index = g2p.games_index)) JOIN platforms ON (g2p.platforms_index = platforms.index) WHERE platforms.name = "%s" GROUP BY games.name' % ('" OR platforms.name = "'.join(platforms)))
 	reviewData = session.fetchall()
-	# Find selected game in list
-	gloc = [x for x in range(len(reviewData)) if reviewData[x]['name'] == name]
-	if len(gloc) == 0: return [], []
-	else: gloc = gloc[0]
 	# Compute TF-IDF similarities between reviews
 	reviewList = [x['review'] for x in reviewData]
 	reviewList.append(gameData[0]['review'])
