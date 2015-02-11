@@ -4,6 +4,7 @@ import os, sys, flask
 from flask import request, render_template, send_from_directory, current_app, session
 
 import numpy as np
+from datetime import datetime
 
 data_page = flask.Blueprint("data_page", __name__)
 @data_page.route('/data.html')
@@ -26,6 +27,9 @@ def func_name():
 		if l % 2000 == 0: reviewData.append(['%d' % (l/1000), len(reviewLengths[(reviewLengths >= l) & (reviewLengths < l+500)])])
 		else: reviewData.append(['', len(reviewLengths[(reviewLengths >= l) & (reviewLengths < l+500)])])
 	templateDict['reviewHist'] = reviewData
+
+	# Log something to show somebody hit this page
+	print('!!! DATA: %s %s' % (datetime.strftime(datetime.now(), "%Y%m%d.%H%M"), request.remote_addr))
 
 	return render_template("data.html", **templateDict)
 

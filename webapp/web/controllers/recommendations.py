@@ -6,6 +6,7 @@ from flask import request, render_template, send_from_directory, current_app, se
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 import pymysql
+from datetime import datetime
 
 def ign_comment_similarity(session, name, platforms):
 	# Get selected game
@@ -68,7 +69,7 @@ def func_name():
 		if thisplat: usablePlatforms.append(p)
 
 	# Prep some easy output to the recommendations page
-	templateDict['name'] = gameTitle
+	templateDict['name'] = gameTitle.split(';')[0]
 	templateDict['linkName'] = '+'.join(gameTitle.split())
 	if len(usablePlatforms) < 2: platformString = ''.join(usablePlatforms)
 	elif len(usablePlatforms) < 3: platformString = ' and '.join(usablePlatforms)
@@ -90,6 +91,11 @@ def func_name():
 		gameData[0]['platform'] = platformData[0]['name']
 		recommendations.append(gameData[0])
 	templateDict['recommendations'] = recommendations
+
+
+	# Log something to show somebody hit the page
+	print("!!! RECOMMENDATIONS: %s %s %s %s %d" % (datetime.strftime(datetime.now(), "%Y%m%d.%H%M"), request.remote_addr, '_'.join(templateDict['name'].split()),
+													','.join([''.join(x.split()) for x in usablePlatforms]), len(recommendations)))
 
 
 	return render_template("recommendations.html", **templateDict)
